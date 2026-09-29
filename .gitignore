@@ -1,0 +1,51 @@
+# Agent Builder — Git Ignore
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+.venv/
+*.egg-info/
+.eggs/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Hermes
+.hermes/
+.hermes-bootstrap-complete
+
+# Logs — keep template JSON files, exclude generated logs
+logs/status/*.log
+logs/queue/*.log
+logs/history/*.log
+logs/adversarial/*.log
+logs/*.log
+
+# Keep template data files
+!logs/status/agent_status.json
+!logs/queue/task_queue.json
+!logs/history/task_history.json
+
+# Keep template files
+!logs/status/.gitkeep
+!logs/queue/.gitkeep
+!logs/history/.gitkeep
+
+# Environment
+.env
+.env.local
+
+# Test artifacts
+*.log

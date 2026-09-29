@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Agent Calling Agent Builder — Architecture Diagram</title>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'JetBrains Mono', monospace; background: #020617; min-height: 100vh; padding: 2rem; color: white; }
+    .container { max-width: 1400px; margin: 0 auto; }
+    .header { margin-bottom: 2rem; }
+    .header-row { display: flex; align-items: center; gap: 1rem; margin-bottom: 0.5rem; }
+    .pulse-dot { width: 12px; height: 12px; background: #34d399; border-radius: 50%; animation: pulse 2s infinite; }
+    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+    h1 { font-size: 1.5rem; font-weight: 700; letter-spacing: -0.025em; }
+    .subtitle { color: #94a3b8; font-size: 0.875rem; margin-left: 1.75rem; }
+    .diagram-container { background: rgba(15, 23, 42, 0.5); border-radius: 1rem; border: 1px solid #1e293b; padding: 1.5rem; overflow-x: auto; }
+    svg { width: 100%; min-width: 1100px; display: block; }
+    .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; margin-top: 2rem; }
+    .card { background: rgba(15, 23, 42, 0.5); border-radius: 0.75rem; border: 1px solid #1e293b; padding: 1.25rem; }
+    .card-header { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.75rem; }
+    .card-dot { width: 8px; height: 8px; border-radius: 50%; }
+    .card-dot.cyan { background: #22d3ee; } .card-dot.emerald { background: #34d399; }
+    .card-dot.violet { background: #a78bfa; } .card-dot.amber { background: #fbbf24; }
+    .card-dot.rose { background: #fb7185; }
+    .card h3 { font-size: 0.875rem; font-weight: 600; }
+    .card ul { list-style: none; color: #94a3b8; font-size: 0.75rem; }
+    .card li { margin-bottom: 0.375rem; }
+    .footer { text-align: center; margin-top: 1.5rem; color: #475569; font-size: 0.75rem; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="header-row">
+        <div class="pulse-dot"></div>
+        <h1>Agent Calling Agent Builder — Architecture</h1>
+      </div>
+      <p class="subtitle">Multi-Agent Orchestrator System · V1–V7 Roadmap · Termux Native · Standalone</p>
+    </div>
+
+    <div class="diagram-container">
+      <svg viewBox="0 0 1200 700">
+        <defs>
+          <marker id="arrow" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+            <polygon points="0 0, 10 3.5, 0 7" fill="#64748b" />
+          </marker>
+          <marker id="arrow-green" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+            <polygon points="0 0, 10 3.5, 0 7" fill="#34d399" />
+          </marker>
+          <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+            <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#1e293b" stroke-width="0.5"/>
+          </pattern>
+        </defs>
+
+        <!-- Background grid -->
+        <rect width="100%" height="100%" fill="url(#grid)" />
+
+        <!-- ============================================================ -->
+        <!-- Region: Main Orchestration Loop                             -->
+        <!-- ============================================================ -->
+        <rect x="40" y="30" width="1120" height="660" rx="16" fill="rgba(16, 185, 129, 0.04)" stroke="#34d399" stroke-width="1" stroke-dasharray="10,5"/>
+        <text x="52" y="48" fill="#34d399" font-size="10" font-weight="600">⟐  ORCHESTRATION LOOP — Agent 1 ↔ Agent 2  ⟐</text>
+
+        <!-- ============================================================ -->
+        <!-- EXTERNAL: User (slate)                                       -->
+        <!-- ============================================================ -->
+        <rect x="60" y="80" width="160" height="70" rx="8" fill="rgba(30, 41, 59, 0.5)" stroke="#94a3b8" stroke-width="1.5"/>
+        <text x="140" y="105" fill="white" font-size="13" font-weight="700" text-anchor="middle">👤 User</text>
+        <text x="140" y="125" fill="#94a3b8" font-size="9" text-anchor="middle">Chat / Trigger</text>
+        <text x="140" y="138" fill="#64748b" font-size="8" text-anchor="middle">Termux Terminal</text>
+
+        <!-- Arrow: User → Agent 1 -->
+        <line x1="220" y1="115" x2="310" y2="115" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#arrow)"/>
+        <text x="265" y="108" fill="#64748b" font-size="8" text-anchor="middle">Chat Trigger</text>
+
+        <!-- ============================================================ -->
+        <!-- AGENT 1 — ORCHESTRATOR / CEO / PLANNER                     -->
+        <!-- (backend — emerald) — largest box                           -->
+        <!-- ============================================================ -->
+        <!-- Background mask rect -->
+        <rect x="310" y="60" width="430" height="230" rx="12" fill="#0f172a"/>
+        <rect x="310" y="60" width="430" height="230" rx="12" fill="rgba(6, 78, 59, 0.4)" stroke="#34d399" stroke-width="2"/>
+
+        <!-- Agent 1 title -->
+        <text x="525" y="85" fill="white" font-size="14" font-weight="700" text-anchor="middle">🤖 Agent 1 — ORCHESTRATOR</text>
+        <text x="525" y="102" fill="#34d399" font-size="10" text-anchor="middle">CEO · Planner · Reviewer · Decision Maker</text>
+
+        <!-- Agent 1 sub-components -->
+        <rect x="330" y="115" width="195" height="45" rx="6" fill="rgba(15, 23, 42, 0.7)" stroke="#34d399" stroke-width="1"/>
+        <text x="427" y="132" fill="#34d399" font-size="10" font-weight="600" text-anchor="middle">📋 Plan Phase</text>
+        <text x="427" y="146" fill="#64748b" font-size="8" text-anchor="middle">Memahami tujuan · Pecah sub-tugas · Checklist</text>
+
+        <rect x="540" y="115" width="185" height="45" rx="6" fill="rgba(15, 23, 42, 0.7)" stroke="#34d399" stroke-width="1"/>
+        <text x="632" y="132" fill="#34d399" font-size="10" font-weight="600" text-anchor="middle">🔀 Delegate</text>
+        <text x="632" y="146" fill="#64748b" font-size="8" text-anchor="middle">delegate_task → Agent 2</text>
+
+        <rect x="330" y="170" width="195" height="45" rx="6" fill="rgba(15, 23, 42, 0.7)" stroke="#34d399" stroke-width="1"/>
+        <text x="427" y="187" fill="#34d399" font-size="10" font-weight="600" text-anchor="middle">🔍 Review Phase</text>
+        <text x="427" y="201" fill="#64748b" font-size="8" text-anchor="middle">Verifikasi hasil · Identifikasi masalah</text>
+
+        <rect x="540" y="170" width="185" height="45" rx="6" fill="rgba(15, 23, 42, 0.7)" stroke="#34d399" stroke-width="1"/>
+        <text x="632" y="187" fill="#34d399" font-size="10" font-weight="600" text-anchor="middle">🎯 Decision</text>
+        <text x="632" y="201" fill="#64748b" font-size="8" text-anchor="middle">Lanjut / Revisi / Selesai</text>
+
+        <!-- Hard Constraints badge -->
+        <rect x="330" y="225" width="405" height="55" rx="6" fill="rgba(251, 113, 133, 0.15)" stroke="#fb7185" stroke-width="1" stroke-dasharray="3,3"/>
+        <text x="345" y="240" fill="#fb7185" font-size="9" font-weight="600">⚡ HARD CONSTRAINTS (WAJIB):</text>
+        <text x="345" y="255" fill="#fb7185" font-size="7">Timeout: 15min  ·  Blocking Model  ·  Sub-Task &lt; 10min</text>
+        <text x="345" y="267" fill="#fb7185" font-size="7">Spawn+Cleanup Anti-Race  ·  Auto-Stop Semi-Auto</text>
+        <text x="345" y="278" fill="#fb7185" font-size="7">Progress via Subtask Completion  ·  Output Review→Koreksi→Replay (max 2x)</text>
+
+        <!-- ============================================================ -->
+        <!-- Arrow: Agent 1 → Agent 2 (delegate_task)                   -->
+        <!-- ============================================================ -->
+        <line x1="740" y1="190" x2="850" y2="190" stroke="#34d399" stroke-width="1.5" marker-end="url(#arrow-green)"/>
+        <text x="795" y="183" fill="#34d399" font-size="9" text-anchor="middle" font-weight="600">delegate_task</text>
+        <text x="795" y="195" fill="#34d399" font-size="7" text-anchor="middle">(blocking, one-shot)</text>
+
+        <!-- ============================================================ -->
+        <!-- AGENT 2 — EXECUTOR (backend — emerald)                     -->
+        <!-- ============================================================ -->
+        <rect x="850" y="110" width="300" height="180" rx="12" fill="rgba(6, 78, 59, 0.3)" stroke="#34d399" stroke-width="1.5"/>
+
+        <!-- Agent 2 title -->
+        <text x="1000" y="135" fill="white" font-size="13" font-weight="700" text-anchor="middle">⚙️ Agent 2 — EXECUTOR</text>
+        <text x="1000" y="152" fill="#34d399" font-size="9" text-anchor="middle">Worker · Implementator · Coder</text>
+
+        <!-- Agent 2 modes -->
+        <rect x="870" y="162" width="125" height="50" rx="6" fill="rgba(15, 23, 42, 0.7)" stroke="#34d399" stroke-width="1"/>
+        <text x="932" y="178" fill="#34d399" font-size="9" font-weight="600" text-anchor="middle">📟 Hermes CLI</text>
+        <text x="932" y="193" fill="#64748b" font-size="8" text-anchor="middle">hermes chat -q</text>
+        <text x="932" y="204" fill="#64748b" font-size="7" text-anchor="middle">one-shot, blocking</text>
+
+        <rect x="1005" y="162" width="130" height="50" rx="6" fill="rgba(15, 23, 42, 0.7)" stroke="#34d399" stroke-width="1"/>
+        <text x="1070" y="178" fill="#34d399" font-size="9" font-weight="600" text-anchor="middle">🖥️ Tmux Session</text>
+        <text x="1070" y="193" fill="#64748b" font-size="8" text-anchor="middle">tmux new-session</text>
+        <text x="1070" y="204" fill="#64748b" font-size="7" text-anchor="middle">interaktif, proses terpisah</text>
+
+        <!-- Agent 2 instruction badge -->
+        <rect x="870" y="220" width="265" height="55" rx="6" fill="rgba(168, 139, 250, 0.12)" stroke="#a78bfa" stroke-width="1"/>
+        <text x="885" y="235" fill="#a78bfa" font-size="8" font-weight="600">📄 Diterima dari Agent 1:</text>
+        <text x="885" y="248" fill="#a78bfa" font-size="7">Task ID · Deskripsi · Folder Kerja · Constraint</text>
+        <text x="885" y="259" fill="#a78bfa" font-size="7">Format Laporan Wajib · 4 Failing Cases (TIMEOUT|CRASH|OUTPUT_MISMATCH|STUCK)</text>
+
+        <!-- ============================================================ -->
+        <!-- Arrow: Agent 2 → Agent 1 laporan balik                     -->
+        <!-- ============================================================ -->
+        <line x1="850" y1="260" x2="740" y2="260" stroke="#34d399" stroke-width="1.5" marker-end="url(#arrow-green)"/>
+        <text x="795" y="253" fill="#34d399" font-size="9" text-anchor="middle" font-weight="600">Laporan Balik</text>
+        <text x="795" y="265" fill="#34d399" font-size="7" text-anchor="middle">(hasil eksekusi terstruktur)</text>
+
+        <!-- ============================================================ -->
+        <!-- Loop label -->
+        <!-- ============================================================ -->
+        <rect x="455" y="290" width="290" height="35" rx="8" fill="rgba(52, 211, 153, 0.15)" stroke="#34d399" stroke-width="1"/>
+        <text x="597" y="303" fill="#34d399" font-size="10" font-weight="600" text-anchor="middle">🔄 LOOP: Plan → Delegate → Execute → Report → Review</text>
+        <text x="597" y="316" fill="#34d399" font-size="8" text-anchor="middle">Ulang sampai tujuan tercapai atau user berhenti</text>
+
+        <!-- ============================================================ -->
+        <!-- INFRASTRUCTURE (database — violet): Logs, Status, Queue    -->
+        <!-- ============================================================ -->
+        <!-- Storage boundary -->
+        <rect x="40" y="345" width="1120" height="180" rx="12" fill="rgba(168, 139, 250, 0.04)" stroke="#a78bfa" stroke-width="1" stroke-dasharray="6,3"/>
+        <text x="52" y="363" fill="#a78bfa" font-size="10" font-weight="600">🗄️  INFRASTRUCTURE & STORAGE</text>
+
+        <!-- Status Tracker -->
+        <rect x="60" y="380" width="240" height="110" rx="8" fill="rgba(76, 29, 149, 0.35)" stroke="#a78bfa" stroke-width="1.5"/>
+        <text x="180" y="402" fill="white" font-size="12" font-weight="700" text-anchor="middle">📊 Status Tracker</text>
+        <text x="180" y="418" fill="#a78bfa" font-size="9" text-anchor="middle">status_tracker.py</text>
+        <text x="180" y="432" fill="#64748b" font-size="8" text-anchor="middle">add / update / list / get</text>
+        <text x="180" y="446" fill="#64748b" font-size="8" text-anchor="middle">Track Agent 2 status</text>
+        <text x="180" y="458" fill="#64748b" font-size="7" text-anchor="middle">CLI: python status_tracker.py</text>
+
+        <!-- Logs & Storage -->
+        <rect x="320" y="380" width="240" height="110" rx="8" fill="rgba(76, 29, 149, 0.35)" stroke="#a78bfa" stroke-width="1.5"/>
+        <text x="440" y="402" fill="white" font-size="12" font-weight="700" text-anchor="middle">📁 Logs & Storage</text>
+        <text x="440" y="418" fill="#a78bfa" font-size="9" text-anchor="middle">logs/*.log — setiap siklus</text>
+        <text x="440" y="432" fill="#a78bfa" font-size="8" text-anchor="middle">status/agent_status.json</text>
+        <text x="440" y="444" fill="#a78bfa" font-size="8" text-anchor="middle">queue/task_queue.json</text>
+        <text x="440" y="456" fill="#a78bfa" font-size="8" text-anchor="middle">history/task_history.json</text>
+
+        <!-- Adversarial Logs -->
+        <rect x="580" y="380" width="240" height="110" rx="8" fill="rgba(76, 29, 149, 0.35)" stroke="#a78bfa" stroke-width="1.5"/>
+        <text x="700" y="402" fill="white" font-size="12" font-weight="700" text-anchor="middle">🛡️ Adversarial Logs</text>
+        <text x="700" y="418" fill="#a78bfa" font-size="9" text-anchor="middle">r1_findings — independent</text>
+        <text x="700" y="432" fill="#a78bfa" font-size="9" text-anchor="middle">r2_crossattack — attack</text>
+        <text x="700" y="444" fill="#a78bfa" font-size="9" text-anchor="middle">r3_defend — defend</text>
+        <text x="700" y="456" fill="#a78bfa" font-size="8" text-anchor="middle">distilled_bundle — 4 hard constraints</text>
+
+        <!-- Cycle Log -->
+        <rect x="840" y="380" width="300" height="110" rx="8" fill="rgba(76, 29, 149, 0.35)" stroke="#a78bfa" stroke-width="1.5"/>
+        <text x="990" y="402" fill="white" font-size="12" font-weight="700" text-anchor="middle">📝 Cycle Logs</text>
+        <text x="990" y="418" fill="#a78bfa" font-size="9" text-anchor="middle">YYYY-MM-DD_HH-MM-SS_cycle_N.log</text>
+        <text x="990" y="434" fill="#a78bfa" font-size="8" text-anchor="middle">Trigger · Plan A1 · Delegasi · Laporan A2</text>
+        <text x="990" y="448" fill="#a78bfa" font-size="8" text-anchor="middle">Review A1 · Keputusan</text>
+        <text x="990" y="462" fill="#64748b" font-size="7" text-anchor="middle">1 log = 1 siklus lengkap</text>
+
+        <!-- ============================================================ -->
+        <!-- V2 Extensions (orange — message bus)                        -->
+        <!-- ============================================================ -->
+        <rect x="40" y="545" width="370" height="140" rx="12" fill="rgba(251, 146, 60, 0.08)" stroke="#fb923c" stroke-width="2"/>
+        <text x="52" y="565" fill="#fb923c" font-size="12" font-weight="700">🔶 V2 — Multi-Agent Paralel &amp; Interaktif</text>
+
+        <rect x="60" y="575" width="110" height="90" rx="6" fill="rgba(251, 146, 60, 0.3)" stroke="#fb923c" stroke-width="1.5"/>
+        <text x="115" y="592" fill="white" font-size="10" font-weight="600" text-anchor="middle">🎛️ Dashboard CLI</text>
+        <text x="115" y="606" fill="#fb923c" font-size="8" text-anchor="middle">bin/agent-builder</text>
+        <text x="115" y="619" fill="#64748b" font-size="7" text-anchor="middle">status · logs · kill</text>
+
+        <rect x="180" y="575" width="115" height="90" rx="6" fill="rgba(251, 146, 60, 0.3)" stroke="#fb923c" stroke-width="1.5"/>
+        <text x="237" y="592" fill="white" font-size="10" font-weight="600" text-anchor="middle">🖥️ Tmux Manager</text>
+        <text x="237" y="606" fill="#fb923c" font-size="8" text-anchor="middle">spawn_agent2.sh</text>
+        <text x="237" y="619" fill="#64748b" font-size="7" text-anchor="middle">new-session -d</text>
+        <text x="237" y="631" fill="#64748b" font-size="7" text-anchor="middle">multi-agent paralel</text>
+
+        <rect x="305" y="575" width="85" height="90" rx="6" fill="rgba(251, 146, 60, 0.3)" stroke="#fb923c" stroke-width="1.5"/>
+        <text x="347" y="592" fill="white" font-size="10" font-weight="600" text-anchor="middle">🔓 Non-</text>
+        <text x="347" y="606" fill="white" font-size="10" font-weight="600" text-anchor="middle">Blocking</text>
+        <text x="347" y="621" fill="#64748b" font-size="7" text-anchor="middle">Agent 1</text>
+        <text x="347" y="633" fill="#64748b" font-size="7" text-anchor="middle">bebas kerja</text>
+        <text x="347" y="644" fill="#64748b" font-size="6" text-anchor="middle">sambil A2 jalan</text>
+
+        <!-- ============================================================ -->
+        <!-- V3 Extensions (amber — cloud)                              -->
+        <!-- ============================================================ -->
+        <rect x="425" y="545" width="260" height="140" rx="12" fill="rgba(251, 191, 36, 0.06)" stroke="#fbbf24" stroke-width="2"/>
+        <text x="437" y="565" fill="#fbbf24" font-size="11" font-weight="700">🟡 V3 — ML &amp; Capability-Based</text>
+
+        <rect x="445" y="575" width="105" height="90" rx="6" fill="rgba(251, 191, 36, 0.25)" stroke="#fbbf24" stroke-width="1.5"/>
+        <text x="497" y="592" fill="white" font-size="10" font-weight="600" text-anchor="middle">🧠 Task Optimizer</text>
+        <text x="497" y="606" fill="#fbbf24" font-size="8" text-anchor="middle">ml/task_optimizer.py</text>
+        <text x="497" y="619" fill="#64748b" font-size="7" text-anchor="middle">Capability-based</text>
+        <text x="497" y="631" fill="#64748b" font-size="7" text-anchor="middle">task assignment</text>
+        <text x="497" y="643" fill="#64748b" font-size="6" text-anchor="middle">recommendation</text>
+
+        <rect x="560" y="575" width="105" height="90" rx="6" fill="rgba(251, 191, 36, 0.25)" stroke="#fbbf24" stroke-width="1.5"/>
+        <text x="612" y="592" fill="white" font-size="10" font-weight="600" text-anchor="middle">📊 ML Stats</text>
+        <text x="612" y="606" fill="#fbbf24" font-size="8" text-anchor="middle">ml/advanced_ml.py</text>
+        <text x="612" y="619" fill="#64748b" font-size="7" text-anchor="middle">Success rate</text>
+        <text x="612" y="631" fill="#64748b" font-size="7" text-anchor="middle">capability stats</text>
+        <text x="612" y="643" fill="#64748b" font-size="6" text-anchor="middle">task history</text>
+
+        <!-- ============================================================ -->
+        <!-- V4 Extensions (amber — cloud)                              -->
+        <!-- ============================================================ -->
+        <rect x="700" y="545" width="265" height="140" rx="12" fill="rgba(251, 191, 36, 0.06)" stroke="#fbbf24" stroke-width="2"/>
+        <text x="712" y="565" fill="#fbbf24" font-size="11" font-weight="700">🟡 V4 — Integrasi Eksternal</text>
+
+        <rect x="720" y="575" width="120" height="55" rx="6" fill="rgba(251, 191, 36, 0.25)" stroke="#fbbf24" stroke-width="1.5"/>
+        <text x="780" y="591" fill="white" font-size="10" font-weight="600" text-anchor="middle">📋 Jira Client</text>
+        <text x="780" y="605" fill="#fbbf24" font-size="8" text-anchor="middle">pm/jira_client.py</text>
+
+        <rect x="850" y="575" width="100" height="55" rx="6" fill="rgba(251, 191, 36, 0.25)" stroke="#fbbf24" stroke-width="1.5"/>
+        <text x="900" y="591" fill="white" font-size="10" font-weight="600" text-anchor="middle">📋 Trello Client</text>
+        <text x="900" y="605" fill="#fbbf24" font-size="8" text-anchor="middle">pm/trello_client.py</text>
+
+        <rect x="720" y="640" width="120" height="35" rx="6" fill="rgba(251, 191, 36, 0.25)" stroke="#fbbf24" stroke-width="1.5"/>
+        <text x="780" y="654" fill="white" font-size="9" font-weight="600" text-anchor="middle">🏗️ Jenkins CI</text>
+        <text x="780" y="665" fill="#fbbf24" font-size="7" text-anchor="middle">cicd/jenkins_client.py</text>
+
+        <rect x="850" y="640" width="100" height="35" rx="6" fill="rgba(251, 191, 36, 0.25)" stroke="#fbbf24" stroke-width="1.5"/>
+        <text x="900" y="654" fill="white" font-size="9" font-weight="600" text-anchor="middle">🔧 GitLab CI</text>
+        <text x="900" y="665" fill="#fbbf24" font-size="7" text-anchor="middle">cicd/gitlab_client.py</text>
+
+        <!-- ============================================================ -->
+        <!-- V5 Extensions (cyan — frontend)                            -->
+        <!-- ============================================================ -->
+        <rect x="980" y="545" width="280" height="140" rx="12" fill="rgba(34, 211, 238, 0.06)" stroke="#22d3ee" stroke-width="2"/>
+        <text x="992" y="565" fill="#22d3ee" font-size="11" font-weight="700">🔷 V5 — Web Dashboard &amp; Real-Time</text>
+
+        <rect x="1000" y="575" width="125" height="55" rx="6" fill="rgba(8, 51, 68, 0.4)" stroke="#22d3ee" stroke-width="1.5"/>
+        <text x="1062" y="592" fill="white" font-size="10" font-weight="600" text-anchor="middle">🌐 Web Dashboard</text>
+        <text x="1062" y="606" fill="#22d3ee" font-size="8" text-anchor="middle">web/static/index.html</text>
+
+        <rect x="1135" y="575" width="110" height="55" rx="6" fill="rgba(120, 53, 15, 0.3)" stroke="#fbbf24" stroke-width="1.5"/>
+        <text x="1190" y="592" fill="white" font-size="10" font-weight="600" text-anchor="middle">📡 WebSocket</text>
+        <text x="1190" y="606" fill="#fbbf24" font-size="8" text-anchor="middle">websocket/server.py</text>
+        <text x="1190" y="618" fill="#64748b" font-size="7" text-anchor="middle">Real-time broadcast</text>
+
+        <rect x="1000" y="640" width="125" height="35" rx="6" fill="rgba(8, 51, 68, 0.4)" stroke="#22d3ee" stroke-width="1.5"/>
+        <text x="1062" y="654" fill="white" font-size="9" font-weight="600" text-anchor="middle">📡 WS Protocol</text>
+        <text x="1062" y="666" fill="#22d3ee" font-size="7" text-anchor="middle">ws://host:8765</text>
+
+        <rect x="1135" y="640" width="110" height="35" rx="6" fill="rgba(15, 23, 42, 0.7)" stroke="#34d399" stroke-width="1"/>
+        <text x="1190" y="654" fill="#34d399" font-size="9" font-weight="600" text-anchor="middle">👥 Multi-Agent1</text>
+        <text x="1190" y="666" fill="#64748b" font-size="7" text-anchor="middle">Multiple orchestrators</text>
+
+        <!-- ============================================================ -->
+        <!-- V7 Extensions (cloud — amber)                              -->
+        <!-- ============================================================ -->
+        <rect x="40" y="695" width="1120" height="0" rx="12" fill="none" stroke="none"/>
+
+        <!-- V6 — Advanced ML (small badge at bottom)                  -->
+        <rect x="40" y="680" width="280" height="0" rx="12" fill="none" stroke="none"/>
+        <rect x="40" y="675" width="260" height="20" rx="6" fill="rgba(251, 191, 36, 0.12)" stroke="#fbbf24" stroke-width="1"/>
+        <text x="52" y="689" fill="#fbbf24" font-size="9" font-weight="600">🟡 V6 — Advanced ML</text>
+        <text x="160" y="689" fill="#64748b" font-size="8">RandomForest prediksi duration · optimasi resource</text>
+        <text x="160" y="689" fill="#64748b" font-size="8">ml/advanced_ml.py</text>
+
+        <!-- V7 — Cloud Deployment (OPTIONAL — bukan untuk Termux) -->
+        <rect x="310" y="675" width="830" height="20" rx="6" fill="rgba(251, 191, 36, 0.1)" stroke="#fbbf24" stroke-width="1"/>
+        <text x="322" y="689" fill="#fbbf24" font-size="9" font-weight="600">🟡 V7 — Cloud Deployment (OPTIONAL)</text>
+        <text x="440" y="689" fill="#64748b" font-size="8">REST API · Docker · Kubernetes</text>
+        <text x="555" y="689" fill="#64748b" font-size="7">— untuk production cloud (AWS/GCP/Azure)</text>
+        <text x="555" y="689" fill="#64748b" font-size="7">— bukan untuk Termux</text>
+
+        <!-- ============================================================ -->
+        <!-- LEGEND (outside all boundaries)                             -->
+        <!-- ============================================================ -->
+        <text x="840" y="720" fill="white" font-size="11" font-weight="600">Legend</text>
+
+        <!-- Component type swatches -->
+        <rect x="840" y="730" width="18" height="10" rx="2" fill="rgba(30, 41, 59, 0.5)" stroke="#94a3b8" stroke-width="1"/>
+        <text x="864" y="738" fill="#94a3b8" font-size="8">External / User</text>
+
+        <rect x="840" y="746" width="18" height="10" rx="2" fill="rgba(6, 78, 59, 0.4)" stroke="#34d399" stroke-width="1"/>
+        <text x="864" y="754" fill="#94a3b8" font-size="8">Backend (Agent 1 &amp; 2)</text>
+
+        <rect x="840" y="762" width="18" height="10" rx="2" fill="rgba(76, 29, 149, 0.35)" stroke="#a78bfa" stroke-width="1"/>
+        <text x="864" y="770" fill="#94a3b8" font-size="8">Database / Storage</text>
+
+        <rect x="840" y="778" width="18" height="10" rx="2" fill="rgba(120, 53, 15, 0.25)" stroke="#fbbf24" stroke-width="1"/>
+        <text x="864" y="786" fill="#94a3b8" font-size="8">Cloud / ML</text>
+
+        <rect x="840" y="794" width="18" height="10" rx="2" fill="rgba(251, 146, 60, 0.3)" stroke="#fb923c" stroke-width="1"/>
+        <text x="864" y="802" fill="#94a3b8" font-size="8">V2 Extension</text>
+
+        <!-- Boundary styles -->
+        <rect x="940" y="730" width="18" height="10" rx="2" fill="transparent" stroke="#34d399" stroke-width="1" stroke-dasharray="10,5"/>
+        <text x="964" y="738" fill="#94a3b8" font-size="8">Orchestration Loop</text>
+
+        <rect x="940" y="746" width="18" height="10" rx="2" fill="transparent" stroke="#a78bfa" stroke-width="1" stroke-dasharray="6,3"/>
+        <text x="964" y="754" fill="#94a3b8" font-size="8">Infrastructure Boundary</text>
+
+        <rect x="940" y="762" width="18" height="10" rx="2" fill="transparent" stroke="#fb7185" stroke-width="1" stroke-dasharray="3,3"/>
+        <text x="964" y="770" fill="#94a3b8" font-size="8">Hard Constraints Zone</text>
+
+        <!-- Arrow styles -->
+        <line x1="940" y1="780" x2="958" y2="780" stroke="#34d399" stroke-width="1.5" marker-end="url(#arrow-green)"/>
+        <text x="964" y="784" fill="#94a3b8" font-size="8">Agent 1 ↔ Agent 2</text>
+
+        <line x1="940" y1="794" x2="958" y2="794" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#arrow)"/>
+        <text x="964" y="798" fill="#94a3b8" font-size="8">User → Agent 1</text>
+
+      </svg>
+    </div>
+
+    <div class="cards">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-dot emerald"></div>
+          <h3>Agent 1 — Orchestrator</h3>
+        </div>
+        <ul>
+          <li>• Peran: CEO, Planner, Reviewer, Decision Maker</li>
+          <li>• Tools: delegate_task, hermes chat (instance utama)</li>
+          <li>• Hard Constraints: 8 aturan WAJIB</li>
+          <li>• Blocking model: tunggu Agent 2 selesai</li>
+          <li>• Kriteria selesai: checklist tujuan tercapai</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-dot emerald"></div>
+          <h3>Agent 2 — Executor</h3>
+        </div>
+        <ul>
+          <li>• Peran: Worker, Implementator, Coder</li>
+          <li>• CLI: hermes chat -q / tmux spawn</li>
+          <li>• Waktu: 15 menit per-task budget</li>
+          <li>• Format laporan: terstruktur wajib</li>
+          <li>• 4 Failing Cases: TIMEOUT, CRASH, OUTPUT_MISMATCH, STUCK</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Roadmap V2–V7 (Termux & Cloud)</h3>
+        </div>
+        <ul>
+          <li>• V2: Multi-Agent paralel, tmux, non-blocking ✓ Plan (Termux)</li>
+          <li>• V3: ML Task Optimizer, capability-based ✓ Plan (Termux)</li>
+          <li>• V4: Jira, Trello, Jenkins, GitLab CI ✓ Plan (Termux, butuh API keys)</li>
+          <li>• V5: WebSocket + Web Dashboard ✓ Plan (Termux, butuh deps)</li>
+          <li>• V6: Advanced ML (RandomForest) ✓ Plan (Termux)</li>
+          <li>• V7: REST API, Docker, Kubernetes ✓ Plan (☁️ Cloud Only — AWS/GCP/Azure, Bukan Termux)</li>
+        </ul>
+      </div>
+    </div>
+
+    <p class="footer">
+      Agent Calling Agent Builder · Standalone di F:/AI-AGENT/agent-builder/ · Termux Native (V1–V6) · V7 Opsi Cloud (AWS/GCP/Azure, Docker/K8s) · Tanpa Docker di Termux · © 2026
+    </p>
+  </div>
+</body>
+</html>

@@ -1,0 +1,29 @@
+{
+  "task": "V2 test",
+  "plan": {
+    "checklist": [
+      "Pendekatan diplan",
+      "Implementasi selesai",
+      "Test dan finalisasi selesai"
+    ],
+    "sub_tasks": [
+      {
+        "id": "task-1",
+        "description": "Pelajari dan plan pendekatan untuk: V2 test",
+        "estimated_minutes": 5
+      },
+      {
+        "id": "task-2",
+        "description": "Eksekusi implementasi: V2 test",
+        "estimated_minutes": 10
+      },
+      {
+        "id": "task-3",
+        "description": "Test, review, dan finalisasi",
+        "estimated_minutes": 5
+      }
+    ],
+    "total_subtasks": 3
+  },
+  "timestamp": "2026-09-29T10:37:08Z"
+}

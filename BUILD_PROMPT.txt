@@ -1,0 +1,198 @@
+---
+
+```
+# BUILD INSTRUCTION — Agent Calling Agent Builder
+
+## Context
+Kamu adalah AI coding assistant yang akan membangun project Agent Calling Agent Builder berdasarkan dokumentasi lengkap di folder `~agent-builder-docs`. Ini adalah sistem multi-agent orchestrator yang berjalan di Termux (Android) atau Windows, tanpa Docker, berdiri sendiri.
+
+## Tujuan
+Membangun V1 sistem Agent Calling Agent Builder yang berjalan di Termux Ubuntu prootchroot, lengkap dengan semua komponen yang terdokumentasi, mengikuti hard constraints yang ditetapkan, dan siap dijalankan sebagai sistem orchestrator.
+
+## Lingkungan
+- OS Termux Ubuntu prootchroot (Android) atau Windows
+- Tools tersedia git, python, nodejs, tmux, curl, hermes CLI
+- Docker TIDAK support di Termux — jangan gunakan Docker
+- Target V1 (single Agent 2, sequential, blocking) + komponen pendukung
+
+## Dokumentasi Referensi
+Semua instruksi harus mengikuti dokumentasi di
+- `~agent-builder-docsREADME.md` — ringkasan sistem & hard constraints
+- `~agent-builder-docs01-overviewREADME.md` — arsitektur & cara instal
+- `~agent-builder-docs02-conceptSKILL.md` — Agent 1 behavior & hard constraints
+- `~agent-builder-docs02-conceptAGENT2_INSTRUCTION.md` — template instruksi & laporan Agent 2
+- `~agent-builder-docs03-plansPLAN.md` — perencanaan & keputusan
+- `~agent-builder-docs03-plansBLUEPRINT.md` — blueprint lengkap V1-V7, struktur folder
+- `~agent-builder-docs03-plansIMPLEMENTATION_PLAN.md` — panduan implementasi step-by-step
+- `~agent-builder-docs04-examplesEXAMPLE_CHAT_TRIGGER.md` — contoh penggunaan
+- `~agent-builder-docs05-configuration.env.example` — template konfigurasi
+- `~agent-builder-docs06-testingINTEGRATION_TEST_GUIDE.md` — panduan testing
+
+## Hard Constraints (WAJIB TAAT)
+
+1. Timeout 15 menit per-task — implementasi harus punya mekanisme timeout
+2. Spawn + Cleanup Anti race condition — cek Agent 2 lama mati sebelum spawn baru
+3. Blocking model Agent 1 tunggu Agent 2 selesai sebelum lanjut
+4. Auto-stop Berhenti hanya jika checklist tujuan tercapai + tidak ada blocker + output sesuai
+5. Sub-task size Pecah jadi  10 menit per sub-tugas
+6. Progress tracking Via completisi sub-tugas (bukan real-time)
+7. Handle output salah Review → koreksi → replay (max 2x) → escalasi
+8. Failing cases TIMEOUT  CRASH  OUTPUT_MISMATCH  STUCK — implementasi wajib handle ke-4 kasus ini
+
+## Tata Letak File
+
+Buat project di folder `~agent-builder` (jika belum ada, buat baru). Struktur file
+
+```
+agent-builder
+├── SKILL.md                     # Orchestrator Skill — Agent 1 behavior (lihat docs02-conceptSKILL.md)
+├── AGENT2_INSTRUCTION.md        # Instruction template Agent 2 (lihat docs02-conceptAGENT2_INSTRUCTION.md)
+├── EXAMPLE_CHAT_TRIGGER.md      # Contoh trigger (lihat docs04-examplesEXAMPLE_CHAT_TRIGGER.md)
+├── PLAN.md                      # Rencana proyek (lihat docs03-plansPLAN.md)
+├── README.md                    # Dokumentasi project
+├── .env.example                 # Template environment (lihat docs05-configuration.env.example)
+│
+├── status_tracker.py            # Track status Agent 2 (Wajib)
+├── spawn_agent2.sh              # Script spawn Agent 2 lewat tmux (Wajib)
+├── binagent-builder             # CLI wrapper (Wajib)
+│
+├── logs
+│   ├── history                 # Riwayat task
+│   ├── queue                   # Antrian task
+│   ├── status                  # Status agent
+│   └── adversarial             # Log adversarial review
+│
+└── skills
+    └── orchestrator            # (Opsional) Orchestrator Skill setup
+```
+
+Catatan V2+ komponen (ml, pm, cicd, websocket, api, docker, k8s) adalah stubsplans — tidak perlu diimplementasi untuk V1. Fokus ke V1 + status_tracker.py, spawn_agent2.sh, binagent-builder.
+
+## Komponen Wajib V1
+
+### 1. SKILL.md — Orchestrator Skill
+- Definisi Agent 1 behavior plan → delegate → review → decide
+- 8 hard constraints (lihat docs02-conceptSKILL.md section 5b)
+- Context prompt untuk Hermes CLI
+- Status Selesai (sudah ada di docs, cukup copy ke project)
+
+### 2. AGENT2_INSTRUCTION.md — Agent 2 Instruction Template
+- Template instruksi yang diberikan ke Agent 2
+- Template laporan terstruktur yang wajib diikuti Agent 2
+- 4 failing cases [TIMEOUT], [CRASH], [OUTPUT_MISMATCH], [STUCK]
+- Status Selesai (sudah ada di docs, cukup copy ke project)
+
+### 3. status_tracker.py — Status Tracker
+- Modul Python untuk track status Agent 2 idle, running, completed, failed
+- Simpan status di file JSON (misal logsstatusagent_status.json)
+- Fungsi `get_status()`, `set_status(status)`, `update_progress(task, progress)`
+- Wajib handle ke-4 failing cases dan simpan riwayat
+
+### 4. spawn_agent2.sh — Spawn Agent 2 via Tmux
+- Script bash untuk spawn Agent 2 di tmux session
+- Cek dulu Agent 2 lama masih hidup (anti race condition)
+- Kirim instruksi ke Agent 2 via tmux send-keys
+- Wajib handle cleanup jika Agent 2 crash
+
+### 5. binagent-builder — CLI Wrapper
+- Script bash untuk menjalankan sistem
+- Command `agent-builder start` — mulai orchestrator
+- Command `agent-builder status` — lihat status Agent 2
+- Command `agent-builder logs` — lihat log
+- Command `agent-builder kill` — kill Agent 2
+- Command `agent-builder help` — tampilkan help
+
+### 6. .env.example — Template Konfigurasi
+- Berisi variabel environment yang dibutuhkan
+- Termux-friendly (tidak include Docker-related vars)
+- Status Selesai (sudah ada di docs, cukup copy ke project)
+
+## Yang TIDAK Perlu Diimplementasi (V1)
+
+- Docker, Docker Compose, Kubernetes — TIDAK SUPPORT DI TERMUX
+- ML Task Optimizer — V3, future
+- Integrasi JiraTrelloJenkinsGitLab — V4, future
+- WebSocket + Web Dashboard — V5, future
+- Advanced ML (RandomForest) — V6, future
+- REST API Server — V7, future (cloud only)
+
+## Prinsip Implementasi
+
+1. Sederhana dulu — V1 hanya butuh SKILL.md, AGENT2_INSTRUCTION.md, status_tracker.py, spawn_agent2.sh, binagent-builder
+2. File code harus jalan di Termux — test di Termux Ubuntu prootchroot
+3. Tanpa Docker — gunakan tmux untuk manajemen Agent 2
+4. Blocking model — Agent 1 tunggu Agent 2 selesai
+5. Laporan terstruktur — Agent 2 wajib lapor dengan format yang ditentukan di AGENT2_INSTRUCTION.md
+6. Handle failing cases — implementasi wajib detect dan handle [TIMEOUT], [CRASH], [OUTPUT_MISMATCH], [STUCK]
+
+## Acceptance Criteria V1
+
+- [ ] `~agent-builderSKILL.md` ada dan berisi orchestrator skill lengkap
+- [ ] `~agent-builderAGENT2_INSTRUCTION.md` ada dan berisi instruction template + 4 failing cases
+- [ ] `~agent-builderstatus_tracker.py` ada, berjalan, dan bisa track status Agent 2
+- [ ] `~agent-builderspawn_agent2.sh` ada, berjalan di Termux, spawn Agent 2 lewat tmux
+- [ ] `~agent-builderbinagent-builder` ada, CLI wrapper berjalan dengan command start, status, logs, kill, help
+- [ ] `~agent-builder.env.example` ada dan terisi
+- [ ] Struktur folder sesuai blueprint (lihat docs03-plansBLUEPRINT.md section 4)
+- [ ] Semua file code berjalan di Termux Ubuntu prootchroot
+- [ ] Docker tidak digunakan di mana pun
+
+## Pengujian
+
+Setelah build selesai, test di Termux
+1. `cd ~agent-builder`
+2. `chmod +x binagent-builder spawn_agent2.sh`
+3. `.binagent-builder help` — harus tampil help
+4. `.binagent-builder status` — harus tampil status Agent 2 (idle)
+5. Test spawn Agent 2 `.spawn_agent2.sh` — Agent 2 harus muncul di tmux
+6. Test status_tracker.py `python3 status_tracker.py --test` atau setara
+
+## Output yang Diharapkan
+
+Sistem V1 siap dijalankan di Termux. Agent 1 (Orchestrator) bisa merencanakan tugas, mendelegasikan ke Agent 2 lewat tmux, menerima laporan terstruktur, dan memutuskan langkah berikutnya — semua berjalan di Termux tanpa Docker.
+
+---
+
+## Catatan Tambahan
+
+- Jika ada ketidakjelasan,acu ke docs03-plansBLUEPRINT.md dan docs03-plansIMPLEMENTATION_PLAN.md
+- Jika ada konflik antara dokumentasi dan kebutuhan Termux, prioritas Termux-compatible
+- V1 adalah fondasi — V2+ (multi-agent paralel, ML, integrasi eksternal, web dashboard) bisa dikembangkan nanti setelah V1 stabil
+- Docker hanya untuk cloud deployment (V7), bukan untuk Termux development
+```
+
+---
+
+## Cara Pakai
+
+Opsi 1 Simpan sebagai file
+```bash
+cat  ~agent-builderBUILD_PROMPT.md  'EOF'
+... (isi prompt di atas) ...
+EOF
+```
+
+Opsi 2 Langsung paste ke Hermes CLI
+```bash
+hermes chat -q $(cat ~agent-builderBUILD_PROMPT.md)
+```
+
+Opsi 3 Gunakan dengan orchestrator context
+```bash
+hermes chat -q $(cat ~agent-builder-docs02-conceptSKILL.md)
+# lalu paste BUILD_PROMPT.md sebagai instruksi lanjutan
+```
+
+---
+
+## Ringkasan
+
+Prompt ini sudah mencakup
+- ✅ Semua hard constraints 8 item
+- ✅ Struktur file V1 yang wajib
+- ✅ Komponen yang TIDAK perlu (Docker, V3-V7 stubs)
+- ✅ Acceptance criteria
+- ✅ Cara test di Termux
+- ✅ Dokumentasi referensi
+
+Prompt siap digunakan untuk build project di Termux Ubuntu prootchroot.
