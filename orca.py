@@ -608,7 +608,7 @@ Silakan perbaiki dan lapor dalam format yang sama.
         "failed_subtasks": len(failed_subtasks),
         "failed_ids": failed_subtasks,
         "timeline": timeline,
-        "status": "completed" if current_idx >= total_subtasks else "partial",
+        "status": "completed" if len(completed_subtasks) >= total_subtasks and not failed_subtasks else "partial",
     }
 
     if verbose:

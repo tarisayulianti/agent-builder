@@ -193,12 +193,12 @@ class HermesClient:
 
 **Format laporan**: Wajib ikuti template laporan Agent 2:
 - Gunakan markdown
-- Format: ## Laporan Eksekusi Agent 2
-- Sertakan: Task ID, Duration, Apa yang dilakukan, Hasil, File yang diubah/dibuat, Masalah/Blocker, Saran berikutnya
-- Jika ada masalah: gunakan label [TIMEOUT], [CRASH], [OUTPUT_MISMATCH], atau [STUCK]
+- Format header: ## Laporan Eksekusi Agent 2
+- Sertakan section: Task ID, Duration, Apa yang dilakukan, Hasil, File yang dibuat, Masalah/Blocker, Saran berikutnya
+- Jika ada masalah teknis, sebutkan di section Masalah/Blocker
 - Wajib laporkan dalam format terstruktur
 
-Laporan dalam format Agent 2 standard.
+Eksekusi dan laporkan hasilmu.
 """
         return self.query(prompt)
 
@@ -224,81 +224,115 @@ def parse_agent2_report(output: str) -> Agent2Report:
         report.failing_case = "OUTPUT_MISMATCH"
         return report
 
-    # Deteksi failing cases berdasarkan keyword
-    if "[TIMEOUT]" in output:
-        report.failing_case = "TIMEOUT"
-    elif "[CRASH]" in output:
-        report.failing_case = "CRASH"
-    elif "[OUTPUT_MISMATCH]" in output:
-        report.failing_case = "OUTPUT_MISMATCH"
-    elif "[STUCK]" in output:
-        report.failing_case = "STUCK"
+    # Strip hermes metadata: "Query: ...", "Initializing...", "───...", "Warning:..."
+    # Keep only the actual response after the divider
+    lines = output.split('\n')
+    clean_lines = []
+    skip_prefixes = ('Query:', 'Initializing', 'Warning:', '──', '│', '╭', '╰', 'Session:', 'Title:', 'Duration:', 'Messages:', 'Resume this session', 'hermes -c', 'hermes --resume')
+    in_response = False
+    for line in lines:
+        stripped = line.lstrip()
+        if not stripped:
+            if in_response:
+                clean_lines.append(line)
+            continue
+        if any(stripped.startswith(p) for p in skip_prefixes):
+            continue
+        in_response = True
+        clean_lines.append(line)
+    output = '\n'.join(clean_lines).strip()
 
-    # Parse Task ID: **Task ID**: <value>
-    import re
+    if not output:
+        report.masalah_blocker = "Output kosong — tidak ada laporan dari Agent 2"
+        report.failing_case = "OUTPUT_MISMATCH"
+        return report
+
+    # Deteksi failing cases hanya pada section "### Masalah / Blocker"
+    if "Masalah" in output or "Blocker" in output:
+        blocker_match = re.search(r'[Mm]asalah.*[/\s]Blocker\s*\n(.*?)(?=\n[A-Za-z].*\n|\Z)', output, re.DOTALL)
+        if not blocker_match:
+            blocker_match = re.search(r'(?:### )?(?:Masalah / Blocker|Blocker)\s*\n(.*?)(?=\n(?:###|[A-Z].*:)|\Z)', output, re.DOTALL)
+        if blocker_match:
+            blocker_text = blocker_match.group(1).strip()
+            if "[TIMEOUT]" in blocker_text:
+                report.failing_case = "TIMEOUT"
+            elif "[CRASH]" in blocker_text:
+                report.failing_case = "CRASH"
+            elif "[OUTPUT_MISMATCH]" in blocker_text:
+                report.failing_case = "OUTPUT_MISMATCH"
+            elif "[STUCK]" in blocker_text:
+                report.failing_case = "STUCK"
+
+    # Parse Task ID — support multiple formats
     task_id_match = re.search(r'\*\*Task ID\*\*:\s*(.+)', output)
+    if not task_id_match:
+        task_id_match = re.search(r'^Task ID\s*\n(.+)$', output, re.MULTILINE)
     if task_id_match:
         report.task_id = task_id_match.group(1).strip()
 
-    # Parse Duration: **Duration**: <value>
+    # Parse Duration — support multiple formats
     duration_match = re.search(r'\*\*Duration\*\*:\s*(.+)', output)
+    if not duration_match:
+        duration_match = re.search(r'^Duration\s*\n(.+)$', output, re.MULTILINE)
     if duration_match:
         report.duration = duration_match.group(1).strip()
 
-    # Parse "### Apa yang dilakukan" section
-    dilakukan_match = re.search(
-        r'### Apa yang dilakukan\s*\n(.*?)(?=\n###|\Z)',
-        output,
-        re.DOTALL
-    )
-    if dilakukan_match:
-        report.apa_yang_dilakukan = dilakukan_match.group(1).strip()
+    # Helper: parse section with optional ### prefix
+    # Matches: "### Header" or "Header" at start of line, followed by content until next section
+    def parse_section(header_variants, text):
+        for variant in header_variants:
+            # With ### prefix
+            m = re.search(rf'### {variant}\s*\n(.*?)(?=\n(?:###|[A-Z][A-Za-z /]+)(\s*\n|\s*$)|$)', text, re.DOTALL)
+            if m:
+                return m.group(1).strip()
+            # Without ### prefix (hermes chat -q style)
+            m = re.search(rf'^{variant}\s*\n(.*?)(?=\n[A-Z][A-Za-z /]+(\s*\n|\s*$)|$)', text, re.MULTILINE | re.DOTALL)
+            if m:
+                return m.group(1).strip()
+        return None
 
-    # Parse "### Hasil" section — bullet points
-    hasil_match = re.search(
-        r'### Hasil\s*\n(.*?)(?=\n###|\Z)',
-        output,
-        re.DOTALL
-    )
-    if hasil_match:
-        hasil_text = hasil_match.group(1).strip()
-        # Parse bullet points (- item)
+    # Parse "Apa yang dilakukan" section
+    report.apa_yang_dilakukan = parse_section(
+        ['Apa yang dilakukan'], output
+    ) or parse_section(['What was done', 'Actions taken'], output)
+
+    # Parse "Hasil" section — bullet points
+    hasil_text = parse_section(['Hasil'], output) or parse_section(['Results'], output)
+    if hasil_text:
         bullets = re.findall(r'^\s*[-*]\s+(.+)$', hasil_text, re.MULTILINE)
         report.hasil = bullets if bullets else [hasil_text]
 
-    # Parse "### File yang diubah/dibuat" section
-    file_match = re.search(
-        r'### File yang diubah/dibuat\s*\n(.*?)(?=\n###|\Z)',
-        output,
-        re.DOTALL
+    # Parse "File yang dibuat/diubah" section
+    file_text = parse_section(
+        ['File yang diubah/dibuat', 'File yang dibuat', 'Files created/modified'],
+        output
     )
-    if file_match:
-        file_text = file_match.group(1).strip()
-        # Parse format: - `path`: desc
+    if file_text:
         file_entries = re.findall(
             r'^\s*[-*]\s+`([^`]+)`:\s*(.+)$',
             file_text,
             re.MULTILINE
         )
+        if not file_entries:
+            # Parse format: - path: desc (without backticks)
+            file_entries = re.findall(
+                r'^\s*[-*]\s+(\S+):\s*(.+)$',
+                file_text,
+                re.MULTILINE
+            )
         report.file_ubah = file_entries if file_entries else [(file_text, "")]
 
-    # Parse "### Masalah / Blocker" section
-    blocker_match = re.search(
-        r'### Masalah / Blocker\s*\n(.*?)(?=\n###|\Z)',
-        output,
-        re.DOTALL
+    # Parse "Masalah / Blocker" section
+    report.masalah_blocker = parse_section(
+        ['Masalah / Blocker', 'Masalah', 'Blocker', 'Issues/Blockers'],
+        output
     )
-    if blocker_match:
-        report.masalah_blocker = blocker_match.group(1).strip()
 
-    # Parse "### Saran berikutnya" section
-    saran_match = re.search(
-        r'### Saran berikutnya \(ke Agent 1\)\s*\n(.+)',
-        output,
-        re.DOTALL
+    # Parse "Saran berikutnya" section
+    report.saran = parse_section(
+        ['Saran berikutnya (ke Agent 1)', 'Saran berikutnya'],
+        output
     )
-    if saran_match:
-        report.saran = saran_match.group(1).strip()
 
     # Jika tidak ada section "### Apa yang dilakukan" tapi ada output,
     # berarti format tidak sesuai — flag sebagai OUTPUT_MISMATCH
