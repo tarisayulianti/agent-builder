@@ -10,7 +10,6 @@ venv/
 .venv/
 *.egg-info/
 .eggs/
-
 # IDE
 .vscode/
 .idea/

@@ -37,8 +37,9 @@ echo "✅ Venv activated: $(which python)"
 
 # 4. Install dependencies
 echo "📦 Installing dependencies..."
-pip install --upgrade pip -q
-pip install -r requirements.txt -q
+python -m pip install --upgrade pip -q 2>/dev/null || true
+python -m pip install -r requirements.txt -q
+python -m pip install -e . -q
 echo "✅ Dependencies installed"
 
 # 5. Verify hermes CLI
