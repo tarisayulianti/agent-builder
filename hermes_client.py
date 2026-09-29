@@ -132,8 +132,9 @@ class HermesClient:
 
         except subprocess.TimeoutExpired as e:
             duration = time.time() - start_time
-            output = e.stdout.decode() if e.stdout else ""
-            error = e.stderr.decode() if e.stderr else "Timeout expired"
+            # text=True → e.stdout sudah string, jangan .decode()
+            output = e.stdout if e.stdout else ""
+            error = e.stderr if e.stderr else "Timeout expired"
 
             if self.verbose:
                 print(f"[hermes_client] TIMEOUT after {duration:.1f}s", file=sys.stderr)

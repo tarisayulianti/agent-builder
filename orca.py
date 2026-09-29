@@ -57,7 +57,6 @@ HISTORY_FILE = PROJECT_ROOT / "logs" / "history" / "task_history.json"
 
 # Timeout: 15 menit per task (sesuai hard constraint 1)
 TASK_TIMEOUT_SECONDS = 900
-
 # Max koreksi jika output salah (sesuai hard constraint 7)
 MAX_CORRECTIONS = 2
 
