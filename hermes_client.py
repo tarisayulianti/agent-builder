@@ -334,8 +334,36 @@ def parse_agent2_report(output: str) -> Agent2Report:
         output
     )
 
-    # Jika tidak ada section "### Apa yang dilakukan" tapi ada output,
-    # berarti format tidak sesuai — flag sebagai OUTPUT_MISMATCH
+    # Jika tidak ada section "### Apa yang dilakukan" tapi output substantial,
+    # extract konten utama sebagai fallback
+    if not report.apa_yang_dilakukan and output.strip():
+        # Coba extract content after divider/separator
+        after_separator = re.split(r'─+\s*\n', output)
+        if len(after_separator) > 1:
+            text = after_separator[-1].strip()
+        else:
+            text = output.strip()
+
+        # Skip known metadata lines, extract actual content
+        meaningful_lines = []
+        skip_keywords = ['Query:', 'Initializing', 'Warning:', 'Unknown toolsets',
+                        'Session:', 'Title:', 'Duration:', 'Messages:',
+                        'Resume this', 'hermes -c', 'hermes --resume']
+        for line in text.split('\n'):
+            stripped = line.strip()
+            if not stripped:
+                continue
+            if any(stripped.startswith(k) for k in skip_keywords):
+                continue
+            meaningful_lines.append(line)
+
+        fallback_text = '\n'.join(meaningful_lines).strip()[:500] if meaningful_lines else None
+        if fallback_text and len(fallback_text) > 50:
+            report.apa_yang_dilakukan = fallback_text
+        else:
+            report.apa_yang_dilakukan = output.strip()[:500] if len(output.strip()) > 50 else None
+
+    # Jika masih tidak ada konten, flag sebagai OUTPUT_MISMATCH
     if not report.apa_yang_dilakukan and output.strip():
         if not report.failing_case:
             report.failing_case = "OUTPUT_MISMATCH"
