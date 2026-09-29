@@ -15,26 +15,19 @@ Sistem ini mengorkestrasi pekerjaan AI agent secara otomatis:
 ## Quick Start
 
 ```bash
-# 1. Clone repository
+# 1. One-shot install (clone + venv + deps + test)
+curl -sSL https://raw.githubusercontent.com/tarisayulianti/agent-builder/master/setup.sh | bash
+
+# Atau manual:
 git clone -b master https://github.com/tarisayulianti/agent-builder.git
 cd agent-builder
-
-# 2. Install dependencies
-pip install -r requirements.txt
-
-# 3. Test semua modul (tanpa hermes)
-python status_tracker.py --test     # 10/10 PASS
-python hermes_client.py --test     # 4/4 PASS
-python orca.py --help              # CLI reference
-
-# 4. Setup hermes (wajib untuk live operation)
-hermes setup --model-setup --interactive
-
-# 5. Jalankan task
-python orca.py run "Buat script Python fibonacci" --verbose
+bash setup.sh
 ```
 
-> ⚠️ **Syarat:** Hermes CLI harus terinstal dan terautentikasi untuk `orca.py run` berfungsi. Gunakan `--test` flag untuk verifikasi tanpa hermes.
+Setelah install, langsung pakai:
+```bash
+python orca.py run "Buat script Python fibonacci" --verbose
+```
 
 ## Commands
 
