@@ -1,16 +1,16 @@
 # Agent Calling Agent Builder
 
-Agent Calling Agent Builder — sistem multi-agent orchestrator yang berjalan di Hermes Desktop App (Windows/Termux) tanpa Docker.
+Agent Calling Agent Builder — a multi-agent orchestrator system running on Hermes Desktop App (Windows/Termux) without Docker.
 
 ## Overview
 
-Sistem ini mengorkestrasi pekerjaan AI agent secara otomatis:
-- **Agent 1 (Orchestrator)** — menerima task, memecah menjadi sub-tasks, mendistribusikan ke Agent 2
-- **Agent 2 (Executor)** — menerima sub-task, mengeksekusi via `hermes chat -q`, mengembalikan hasil
+This system orchestrates AI agent work automatically:
+- **Agent 1 (Orchestrator)**: receives task, breaks down into sub-tasks, delegates to Agent 2
+- **Agent 2 (Executor)**: receives sub-task, executes via `hermes chat -q`, returns results
 
 ### Modes
-- **V1 (default)** — Sequential, blocking. Satu Agent 2 menjalankan satu sub-task.
-- **V2** — Parallel, ThreadPoolExecutor. Multiple Agent 2 menjalankan sub-task secara bersamaan.
+- **V1 (default)** — Sequential, blocking. One Agent 2 executes one sub-task.
+- **V2** — Parallel, ThreadPoolExecutor. Multiple Agent 2 agents execute sub-tasks concurrently.
 
 ## Quick Start
 
@@ -21,80 +21,81 @@ curl -sSL https://raw.githubusercontent.com/tarisayulianti/agent-builder/master/
 
 ### One-shot via Hermes agent prompt
 ```bash
-# Clone repo, activate venv, run this prompt via hermes chat
+# Clone repo, activate venv, paste the prompt below into hermes chat
 hermes chat -q
-> paste prompt di bawah ini ke hermes chat -q
+> paste the install prompt below
 ```
 
-**Prompt install (copy ke hermes chat -q):**
+**Install prompt (copy to `hermes chat -q`):**
 
-> Kamu adalah setup engineer untuk Agent Calling Agent Builder. Ikuti langkah berikut secara berurutan, verifikasi setiap langkah berhasil sebelum lanjut, dan laporkan hasil akhir.
+> You are a setup engineer for the Agent Calling Agent Builder system. Follow each step in order, verify success before proceeding, and provide a final report.
 >
-> 1. **Clone repository**  
+> 1. **Clone repository**
 >    ```bash
 >    git clone -b master https://github.com/tarisayulianti/agent-builder.git
 >    cd agent-builder
 >    ```
->    Verifikasi: ada `orca.py`, `status_tracker.py`, `hermes_client.py`, `spawn_agent2.sh`, `bin/agent-builder`, `setup.sh`.
+>    Verify: `orca.py`, `status_tracker.py`, `hermes_client.py`, `spawn_agent2.sh`, `bin/agent-builder`, and `setup.sh` all exist.
 >
-> 2. **Buat & aktifkan venv**  
+> 2. **Create & activate venv**
 >    ```bash
 >    python3 -m venv venv
 >    source venv/bin/activate
 >    ```
->    Verifikasi: `which python` → `venv/bin/python`.
+>    Verify: `which python` resolves to `venv/bin/python`.
 >
-> 3. **Install dependencies**  
+> 3. **Install dependencies**
 >    ```bash
 >    pip install --upgrade pip
 >    pip install -r requirements.txt
 >    pip install -e .
 >    ```
->    Verifikasi: semua exit code 0.
+>    Verify: all return exit code 0.
 >
-> 4. **Verify Hermes CLI**  
+> 4. **Verify Hermes CLI**
 >    ```bash
 >    hermes --version
 >    ```
->    - Ada → lanjut. Tidak ada → hentikan, beri tahu user.
+>    - If present → proceed.
+>    - If not found → stop and tell the user to install Hermes CLI manually.
 >
-> 5. **Setup model** (jika belum)  
+> 5. **Configure model** (if not already done)
 >    ```bash
 >    hermes setup --model-setup --interactive
 >    ```
->    Provider: **Nous Research**, model: **poolside/laguna-s-2.1:free**
+>    Select provider: **Nous Research**, model: **poolside/laguna-s-2.1:free**
 >
-> 6. **Run self-tests**  
+> 6. **Run self-tests**
 >    ```bash
->    python status_tracker.py --test   # 10/10
->    python hermes_client.py --test    # 4/4
+>    python status_tracker.py --test   # expects 10/10
+>    python hermes_client.py --test    # expects 4/4
 >    ```
 >
-> 7. **Test end-to-end**  
+> 7. **End-to-end test**
 >    ```bash
->    python orca.py run "Buat script Python fibonacci ke-10" --verbose
+>    python orca.py run "Create a Python Fibonacci script to the 10th number" --verbose
 >    ```
->    Verifikasi: file `fibonacci.py` terbuat, ada di `logs/history/task_history.json`.
+>    Verify: `fibonacci.py` file is created; entry appears in `logs/history/task_history.json`.
 >
-> 8. **Laporan akhir**  
+> 8. **Final report** (output in this format)
 >    ```markdown
->    ✅ Instalasi selesai
+>    ✅ Installation complete
 >    - Hermes version: [version]
 >    - Provider: Nous Research / poolside/laguna-s-2.1:free
 >    - Tests: status_tracker 10/10, hermes_client 4/4
 >    - E2E test: [PASS/FAIL]
->    - Commands:
+>    - Ready commands:
 >      ```bash
 >      cd ~/agent-builder
 >      source venv/bin/activate
->      python orca.py run "task" --verbose              # V1
->      python orca.py run "task" --mode=v2 --verbose   # V2
+>      python orca.py run "task" --verbose              # V1 sequential
+>      python orca.py run "task" --mode=v2 --verbose   # V2 parallel
 >      ```
 >    ```
 
-Setelah install, langsung pakai:
+After install, run directly:
 ```bash
-python orca.py run "Buat script Python fibonacci" --verbose
+python orca.py run "Create a Python Fibonacci script to the 10th number" --verbose
 ```
 
 ## Commands
@@ -102,34 +103,20 @@ python orca.py run "Buat script Python fibonacci" --verbose
 ### orca.py (Orchestrator CLI)
 
 ```bash
-# Lihat semua commands
-python orca.py --help
-
-# Buat sub-task dari deskripsi
-python orca.py plan "Rancang API untuk toko online"
-
-# Execute task (V1 sequential)
-python orca.py run "Buat script Python fibonacci"
-
-# Execute task (V2 parallel)
-python orca.py run "task desk" --mode=v2 --verbose
-
-# Lihat status semua agent
-python orca.py status
-
-# Lihat task history & logs
-python orca.py logs
-
-# Reset semua status
-python orca.py reset
+python orca.py --help                         # See all commands
+python orca.py plan "Design a REST API for an online store"   # Create sub-tasks
+python orca.py run "Create a Python Fibonacci script"          # V1 sequential
+python orca.py run "task" --mode=v2 --verbose                  # V2 parallel
+python orca.py status                        # View all agent status
+python orca.py logs                          # View task history & logs
+python orca.py reset                         # Reset all status
 ```
 
 ### bin/agent-builder (Bash CLI Wrapper)
 
 ```bash
-# Setara dengan orca.py tapi otomatis pakai venv python
 ./bin/agent-builder status
-./bin/agent-builder run "Buat script Python fibonacci" --verbose
+./bin/agent-builder run "Create a Python Fibonacci script" --verbose
 ./bin/agent-builder logs
 ./bin/agent-builder plan "test task"
 ```
@@ -139,7 +126,7 @@ python orca.py reset
 ```bash
 python status_tracker.py --test        # Run self-tests (10/10 PASS)
 python status_tracker.py --status      # Show current agent status
-python status_tracker.py --reset       # Reset semua status
+python status_tracker.py --reset       # Reset all status
 python status_tracker.py --log-cycle   # Log cycle stats
 ```
 
@@ -163,18 +150,18 @@ User → orca.py (Agent 1) → spawn_agent2.sh → hermes_client.py → hermes c
 1. User: orca.py run "task"
 2. Agent 1: plan "task" → sub-tasks JSON
 3. Agent 1: spawn Agent 2 per sub-task (sequential)
-4. Agent 2: hermes chat -q "sub-task" → hasil
-5. Agent 2: spawn_agent_inner.py → parse hasil → JSON
-6. Agent 1: aggregate semua hasil → log
+4. Agent 2: hermes chat -q "sub-task" → result
+5. Agent 2: spawn_agent_inner.py → parse result → JSON
+6. Agent 1: aggregate all results → log
 ```
 
 ### V2 Flow (Parallel)
 ```
 1. User: orca.py run "task" --mode=v2
 2. Agent 1: plan "task" → sub-tasks JSON
-3. Agent 1: ThreadPoolExecutor → spawn semua Agent 2 secara parallel
+3. Agent 1: ThreadPoolExecutor → spawn all Agent 2 concurrently
 4. Agent 2: hermes chat -q → parse → JSON (concurrent)
-5. Agent 1: aggregate semua hasil → log
+5. Agent 1: aggregate all results → log
 ```
 
 ## File Structure
@@ -211,15 +198,15 @@ agent-builder/
 
 ## Testing
 
-### Self-test (tanpa hermes)
+### Self-test (without hermes)
 ```bash
 python status_tracker.py --test     # 10/10 PASS
 python hermes_client.py --test      # 4/4 PASS
 ```
 
-### End-to-end (dengan hermes)
+### End-to-end (with hermes)
 ```bash
-python orca.py run "Buat script Python fibonacci" --verbose
+python orca.py run "Create a Python Fibonacci script" --verbose
 python orca.py run "task" --mode=v2 --verbose
 ```
 
@@ -234,9 +221,9 @@ python orca.py run "task" --mode=v2 --verbose
 ## Prerequisites
 
 ### Hard Requirements
-1. **Python 3.11+** (gunakan venv yang dikonfigurasi)
-2. **Hermes CLI** terinstal & terautentikasi (`hermes setup --model-setup`)
-3. **Git** untuk clone repo
+1. **Python 3.11+** (use configured venv)
+2. **Hermes CLI** installed & authenticated (`hermes setup --model-setup`)
+3. **Git** for cloning repo
 
 ### Termux (Android)
 ```bash
@@ -253,22 +240,22 @@ hermes setup --model-setup --interactive
 
 ## Configuration
 
-Salin `.env.example` jadi `.env`:
+Copy `.env.example` to `.env`:
 ```bash
 cp 05-configuration/.env.example .env
 ```
 
-Edit `.env` untuk konfigurasi:
+Edit `.env` for configuration:
 - `AGENT2_MODE=hermes-chat` (V1 default mode)
-- `AGENT2_TIMEOUT=900` (15 menit)
-- `SUBTASK_MAX_TIME=600` (10 menit per sub-task)
+- `AGENT2_TIMEOUT=900` (15 minutes)
+- `SUBTASK_MAX_TIME=600` (10 minutes per sub-task)
 
 ## Logs
 
-Log otomatis tersimpan di:
-- `logs/status/agent_status.json` — status semua agent
-- `logs/queue/task_queue.json` — task yang pending/running/done
-- `logs/history/task_history.json` — histori semua task eksekusi
+Logs are automatically saved to:
+- `logs/status/agent_status.json` — agent status
+- `logs/queue/task_queue.json` — pending/running/done tasks
+- `logs/history/task_history.json` — execution history
 
 Monitor logs:
 ```bash
@@ -278,31 +265,31 @@ python status_tracker.py --log-cycle
 
 ## Hard Constraints
 
-1. **Timeout 15 menit** per task (900 detik)
-2. **Spawn + cleanup anti-race** — proses Agent 2 selalu dibersihkan setelah selesai
+1. **Timeout 15 minutes** per task (900 seconds)
+2. **Spawn + cleanup anti-race** — Agent 2 process always cleaned after completion
 3. **Blocking model** (V1) / **Non-blocking** (V2)
-4. **Auto-stop semi-otomatis** — review max 2x, lalu escalate
-5. **Sub-task size ≤ 10 menit** per sub-task
-6. **Progress via sub-task completion** — progres dilacak per sub-task selesai
-7. **Review → koreksi → replay (max 2x) → eskalasi**
+4. **Auto-stop semi-automatic** — review max 2x, then escalate
+5. **Sub-task size ≤ 10 minutes** per sub-task
+6. **Progress via sub-task completion** — progress tracked per completed sub-task
+7. **Review → correction → replay (max 2x) → escalation**
 8. **Handle 4 failing cases**: TIMEOUT, CRASH, OUTPUT_MISMATCH, STUCK
 
 ## Troubleshooting
 
-### Hermes CLI tidak ditemukan
+### Hermes CLI not found
 ```bash
 which hermes
 hermes --version
-# Pastikan hermes terinstall & di PATH
+# Ensure hermes is installed & on PATH
 ```
 
 ### Timeout error
-- Periksa `AGENT2_TIMEOUT` di `.env`
-- Gunakan `--verbose` untuk lihat progress real-time
+- Check `AGENT2_TIMEOUT` in `.env`
+- Use `--verbose` to see real-time progress
 
 ### Output Mismatch
-- Hermes output harus pakai format `## Laporan Eksekusi Agent 2`
-- Jika tidak, sistem akan escalate otomatis (max 2x)
+- Hermes output must use format `## Laporan Eksekusi Agent 2`
+- If not matched, system will auto-escalate (max 2x)
 
 ## License
 
