@@ -14,15 +14,83 @@ Sistem ini mengorkestrasi pekerjaan AI agent secara otomatis:
 
 ## Quick Start
 
+### One-shot via script
 ```bash
-# 1. One-shot install (clone + venv + deps + test)
 curl -sSL https://raw.githubusercontent.com/tarisayulianti/agent-builder/master/setup.sh | bash
-
-# Atau manual:
-git clone -b master https://github.com/tarisayulianti/agent-builder.git
-cd agent-builder
-bash setup.sh
 ```
+
+### One-shot via Hermes agent prompt
+```bash
+# Clone repo, activate venv, run this prompt via hermes chat
+hermes chat -q
+> paste prompt di bawah ini ke hermes chat -q
+```
+
+**Prompt install (copy ke hermes chat -q):**
+
+> Kamu adalah setup engineer untuk Agent Calling Agent Builder. Ikuti langkah berikut secara berurutan, verifikasi setiap langkah berhasil sebelum lanjut, dan laporkan hasil akhir.
+>
+> 1. **Clone repository**  
+>    ```bash
+>    git clone -b master https://github.com/tarisayulianti/agent-builder.git
+>    cd agent-builder
+>    ```
+>    Verifikasi: ada `orca.py`, `status_tracker.py`, `hermes_client.py`, `spawn_agent2.sh`, `bin/agent-builder`, `setup.sh`.
+>
+> 2. **Buat & aktifkan venv**  
+>    ```bash
+>    python3 -m venv venv
+>    source venv/bin/activate
+>    ```
+>    Verifikasi: `which python` → `venv/bin/python`.
+>
+> 3. **Install dependencies**  
+>    ```bash
+>    pip install --upgrade pip
+>    pip install -r requirements.txt
+>    pip install -e .
+>    ```
+>    Verifikasi: semua exit code 0.
+>
+> 4. **Verify Hermes CLI**  
+>    ```bash
+>    hermes --version
+>    ```
+>    - Ada → lanjut. Tidak ada → hentikan, beri tahu user.
+>
+> 5. **Setup model** (jika belum)  
+>    ```bash
+>    hermes setup --model-setup --interactive
+>    ```
+>    Provider: **Nous Research**, model: **poolside/laguna-s-2.1:free**
+>
+> 6. **Run self-tests**  
+>    ```bash
+>    python status_tracker.py --test   # 10/10
+>    python hermes_client.py --test    # 4/4
+>    ```
+>
+> 7. **Test end-to-end**  
+>    ```bash
+>    python orca.py run "Buat script Python fibonacci ke-10" --verbose
+>    ```
+>    Verifikasi: file `fibonacci.py` terbuat, ada di `logs/history/task_history.json`.
+>
+> 8. **Laporan akhir**  
+>    ```markdown
+>    ✅ Instalasi selesai
+>    - Hermes version: [version]
+>    - Provider: Nous Research / poolside/laguna-s-2.1:free
+>    - Tests: status_tracker 10/10, hermes_client 4/4
+>    - E2E test: [PASS/FAIL]
+>    - Commands:
+>      ```bash
+>      cd ~/agent-builder
+>      source venv/bin/activate
+>      python orca.py run "task" --verbose              # V1
+>      python orca.py run "task" --mode=v2 --verbose   # V2
+>      ```
+>    ```
 
 Setelah install, langsung pakai:
 ```bash
@@ -118,6 +186,7 @@ agent-builder/
 ├── hermes_client.py            # Hermes chat -q wrapper (Agent 2)
 ├── spawn_agent2.sh             # Spawn Agent 2 script
 ├── spawn_agent2_inner.py       # Agent 2 inner logic + report parser
+├── setup.sh                    # One-shot install script
 ├── bin/
 │   └── agent-builder           # Bash CLI wrapper
 ├── logs/
