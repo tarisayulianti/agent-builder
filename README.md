@@ -14,6 +14,16 @@ This system orchestrates AI agent work automatically:
 
 ## Quick Start
 
+### 🚀 One-Line Access (setelah install)
+```powershell
+# PowerShell: ketik `agent` untuk buka TUI langsung
+function agent { Set-Location "C:\Users\User\Desktop\agent-builder"; .\venv\Scripts\python.exe tui.py }
+```
+
+### Desktop shortcuts
+- **`agent-builder.bat`** — double-click → buka TUI langsung
+- **`buka-dashboard.bat`** — double-click → buka dashboard di browser
+
 ### One-shot via script
 ```bash
 curl -sSL https://raw.githubusercontent.com/tarisayulianti/agent-builder/master/setup.sh | bash

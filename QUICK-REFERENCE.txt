@@ -1,0 +1,16 @@
+AGENT BUILDER — QUICK REFERENCE
+====================================
+  🚀 python tui.py           Interactive UI (menu)
+  📊 open dashboard/index.html   Web dashboard
+  ▶️  python orca.py run "TASK" --verbose   Run task
+  📋 python orca.py plan "TASK"   Plan only
+  📊 python orca.py status     Check status
+  📜 python orca.py logs        View history
+  🧪 python tui.py → [6]        Run self-tests
+  🔄 python tui.py → [4]        Reset status
+====================================
+
+PowerShell function (add to $PROFILE):
+  function agent { cd C:\Users\User\Desktop\agent-builder; venv\Scripts\python.exe tui.py }
+
+GitHub: https://github.com/tarisayulianti/agent-builder
