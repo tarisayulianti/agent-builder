@@ -222,7 +222,7 @@ def serve(port=8080, open_browser=True):
 
     print(f"[Dashboard] Serving at http://localhost:{port}")
     if open_browser:
-        threading.Thread(lambda: webbrowser.open(f"http://localhost:{port}"), daemon=True).start()
+        threading.Thread(target=lambda: webbrowser.open(f"http://localhost:{port}"), daemon=True).start()
 
     try:
         handler.serve_forever()
