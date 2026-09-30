@@ -11,6 +11,7 @@ Usage:
 import os
 import sys
 import json
+import shutil
 import subprocess
 from pathlib import Path
 
@@ -28,6 +29,13 @@ class TUIApp:
         self.project_root = PROJECT_ROOT
         self.status_file = self.project_root / "logs" / "status" / "agent_status.json"
         self.history_file = self.project_root / "logs" / "history" / "task_history.json"
+
+    def _safe_input(self, prompt=""):
+        """Wrapper untuk input() — handle EOFError pada piped input."""
+        try:
+            return input(prompt)
+        except EOFError:
+            return ""
 
     def clear(self):
         os.system('cls' if os.name == 'nt' else 'clear')
@@ -57,7 +65,7 @@ class TUIApp:
             agents = data.get('agents', {})
             running = [a for a, info in agents.items() if info.get('status') == 'running']
             idle = [a for a, info in agents.items() if info.get('status') == 'idle']
-            return f"Agent: {len(agents)} total | RO {len(running)} running | W {len(idle)} idle"
+            return f"Agent: {len(agents)} total | RUN: {len(running)} | IDLE: {len(idle)}"
         except FileNotFoundError:
             return "Agent: 0 (belum berjalan)"
         except Exception:
@@ -70,7 +78,7 @@ class TUIApp:
                 data = json.load(f)
             cycles = data.get('cycles', [])
             completed = [c for c in cycles if c.get('keputusan') == 'complete']
-            return f"Cycle: {len(cycles)} total | {len(completed)} completed"
+            return f"Cycles: {len(cycles)} total | {len(completed)} completed"
         except FileNotFoundError:
             return "History: none"
         except Exception:
@@ -81,10 +89,10 @@ class TUIApp:
         self.print_header("RUN NEW TASK")
         print("\nDescribe task (e.g. 'buat script python fibonacci ke-10')")
         print("Leave empty to cancel.\n")
-        task = input("> ").strip()
+        task = self._safe_input("> ").strip()
         if not task:
             print("\nCancelled.")
-            input("\nPress Enter to continue...")
+            self._safe_input("\nPress Enter to continue...")
             return
 
         print(f"\nRunning task: {task}")
@@ -106,7 +114,7 @@ class TUIApp:
         except Exception as e:
             print(f"\nError: {e}")
 
-        input("\nPress Enter to continue...")
+        self._safe_input("\nPress Enter to continue...")
 
     def view_status(self):
         """Tampilkan status agent."""
@@ -128,7 +136,7 @@ class TUIApp:
         except Exception:
             pass
 
-        input("\nPress Enter to continue...")
+        self._safe_input("\nPress Enter to continue...")
 
     def view_history(self):
         """Tampilkan task history."""
@@ -152,23 +160,21 @@ class TUIApp:
         except Exception as e:
             print(f"\n  Error: {e}")
 
-        input("\nPress Enter to continue...")
+        self._safe_input("\nPress Enter to continue...")
 
     def reset_status(self):
-        """Reset semua status."""
+        """Reset semua status — via template copy, not orca.py reset."""
         self.print_header("RESET ALL STATUS")
         print("\n  This clears all agent status, queue, and history.")
         print("  Type 'YES' to confirm.")
 
-        confirm = input("\n> ").strip()
+        confirm = self._safe_input("\n> ").strip()
         if confirm != "YES":
             print("\nCancelled.")
-            input("\nPress Enter...")
+            self._safe_input("\nPress Enter...")
             return
 
         print("\nResetting...")
-        # Re-initialize from templates
-        import shutil
         for name in ['agent_status.json', 'task_queue.json', 'task_history.json']:
             src = self.project_root / "logs" / name
             template = self.project_root / "logs" / "template" / name
@@ -176,7 +182,7 @@ class TUIApp:
                 shutil.copy2(template, src)
                 print(f"  Reset {name}")
         print("\nDone.")
-        input("\nPress Enter...")
+        self._safe_input("\nPress Enter...")
 
     def open_dashboard(self):
         """Generate and open dashboard."""
@@ -199,7 +205,7 @@ class TUIApp:
         else:
             print("\n  dashboard.py not found")
 
-        input("\nPress Enter...")
+        self._safe_input("\nPress Enter...")
 
     def run_tests(self):
         """Run self-test."""
@@ -213,7 +219,6 @@ class TUIApp:
         for label, cmd in [("status_tracker", cmd1), ("hermes_client", cmd2)]:
             print(f"\n  [{label}]")
             result = subprocess.run(cmd, capture_output=True, text=True)
-            # Get last 3 lines
             lines = result.stdout.strip().split('\n')
             for line in lines[-3:]:
                 print(f"    {line}")
@@ -222,7 +227,7 @@ class TUIApp:
 
         print("\n" + "-" * 60)
         print("\nTests complete.")
-        input("\nPress Enter...")
+        self._safe_input("\nPress Enter...")
 
     def run(self):
         while True:
@@ -237,10 +242,13 @@ class TUIApp:
             print()
 
             try:
-                choice = input("\nPilih [1-7]: ").strip()
+                choice = self._safe_input("\nPilih [1-7]: ").strip()
             except KeyboardInterrupt:
                 print("\n\nBye!")
                 break
+
+            if not choice:
+                continue
 
             if choice == "1":
                 self.run_task()
@@ -260,7 +268,7 @@ class TUIApp:
             else:
                 if choice:
                     print(f"\n  Invalid: '{choice}'")
-                    input("\n  Press Enter...")
+                self._safe_input("\n  Press Enter...")
 
 
 if __name__ == "__main__":

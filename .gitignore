@@ -37,10 +37,13 @@ logs/*.log
 !logs/queue/task_queue.json
 !logs/history/task_history.json
 
-# Keep template files
+# Keep template data files
 !logs/status/.gitkeep
 !logs/queue/.gitkeep
 !logs/history/.gitkeep
+
+# Exclude generated dashboard
+dashboard/index.html
 
 # Environment
 .env

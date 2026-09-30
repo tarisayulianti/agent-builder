@@ -31,7 +31,7 @@ BLUE='\033[0;34m'
 NC='\033[0m'
 
 # ── Config ──────────────────────────────────────────────────────────
-PYTHON="${PYTHON:-/c/Users/User/AppData/Local/hermes/hermes-agent/venv/Scripts/python.exe}"
+PYTHON="${PYTHON:-$(which python3 2>/dev/null || which python 2>/dev/null || echo python)}"
 HERMES_CMD="${HERMES_CMD:-hermes}"
 TIMEOUT_MINUTES="${TIMEOUT_MINUTES:-15}"
 TIMEOUT_SECONDS=$((TIMEOUT_MINUTES * 60))
