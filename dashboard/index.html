@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Agent Builder Dashboard</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #1a1a27;
+      color: #e0e0e0;
+      padding: 20px;
+    }
+    .header {
+      text-align: center;
+      padding: 20px 0;
+      border-bottom: 2px solid #16213e;
+      margin-bottom: 20px;
+    }
+    .header h1 { color: #00d4ff; font-size: 1.8em; }
+    .header .timestamp { color: #888; font-size: 0.9em; margin-top: 5px; }
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+      margin-bottom: 30px;
+    }
+    .stat-card {
+      background: #16213e;
+      border-radius: 10px;
+      padding: 20px;
+      text-align: center;
+      border: 1px solid #0f3460;
+    }
+    .stat-card .number { font-size: 2.5em; font-weight: bold; color: #00d4ff; }
+    .stat-card .label { color: #888; font-size: 0.9em; margin-top: 5px; }
+    .card {
+      background: #16213e;
+      border-radius: 10px;
+      padding: 20px;
+      margin-bottom: 20px;
+      border: 1px solid #0f3460;
+    }
+    .card h2 { color: #00d4ff; margin-bottom: 15px; font-size: 1.2em; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { padding: 10px; text-align: left; border-bottom: 1px solid #0f3460; }
+    th { color: #00d4ff; }
+    .status-badge {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 15px;
+      font-size: 0.8em;
+      font-weight: bold;
+    }
+    .status-running { background: #0f3460; color: #00d4ff; }
+    .status-idle { background: #0f3460; color: #888; }
+    .status-complete { background: #0a5c2c; color: #00ff88; }
+    .status-revise { background: #5c3a0a; color: #ffaa00; }
+    .status-accept { background: #0a5c2c; color: #00ff88; }
+    .no-data { color: #888; text-align: center; padding: 30px; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>Agent Builder Dashboard</h1>
+    <div class="timestamp">Last updated: 2026-09-30 19:38:19</div>
+  </div>
+
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="number">1</div>
+      <div class="label">Active Agents</div>
+    </div>
+    <div class="stat-card">
+      <div class="number">0</div>
+      <div class="label">Running</div>
+    </div>
+    <div class="stat-card">
+      <div class="number">0</div>
+      <div class="label">Total Cycles</div>
+    </div>
+    <div class="stat-card">
+      <div class="number">0</div>
+      <div class="label">Tasks Completed</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Agent Status</h2>
+    
+        <table>
+          <tr><th>Status</th><th>Agent Name</th><th>Current Task</th></tr>
+          <tr><td><span class='status-badge status-idle'>idle</span></td><td>agent2</td><td>None</td></tr>
+        </table>
+  </div>
+
+  <div class="card">
+    <h2>Recent Task History</h2>
+    <div class='no-data'>No task history</div>
+  </div>
+</body>
+</html>

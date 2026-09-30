@@ -263,6 +263,54 @@ python orca.py logs
 python status_tracker.py --log-cycle
 ```
 
+## TUI (Terminal User Interface)
+
+Interactive menu — no need to remember CLI commands:
+
+```bash
+python tui.py
+```
+
+Menu:
+| Key | Action |
+|---|---|
+| 1 | Jalankan task baru (input deskripsi) |
+| 2 | Lihat status agent live |
+| 3 | Lihat task history |
+| 4 | Reset semua status |
+| 5 | Buka dashboard |
+| 6 | Jalankan self-test |
+| 7 | Keluar |
+
+## Dashboard
+
+HTML dashboard showing agent status + task history:
+
+```bash
+# Generate HTML file
+python dashboard/dashboard.py --generate
+# Open: dashboard/index.html
+
+# Serve via HTTP (port 8080) + auto-open browser
+python dashboard/dashboard.py --serve --open
+```
+
+## Commands Reference
+
+Quick CLI reference (no need to memorize long commands):
+
+| Goal | Command |
+|---|---|
+| Run task | `python orca.py run "deskripsi task" --verbose` |
+| Run task (parallel V2) | `python orca.py run "task" --mode=v2 --verbose` |
+| Plan task | `python orca.py plan "deskripsi"` |
+| Check status | `python orca.py status` |
+| View logs | `python orca.py logs` |
+| Self-test | `python status_tracker.py --test` |
+| **TUI (interactive menu)** | `python tui.py` |
+| **Dashboard (HTML)** | `python dashboard/dashboard.py --generate` |
+| **Dashboard (HTTP)** | `python dashboard/dashboard.py --serve --open` |
+
 ## Hard Constraints
 
 1. **Timeout 15 minutes** per task (900 seconds)
